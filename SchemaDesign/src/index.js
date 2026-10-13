@@ -15,6 +15,7 @@ app.use(express.json());
 
 connectDB();
 
+
 app.get("/",(req, res)=>{
     res.json({message:"Schema database design "})
 });

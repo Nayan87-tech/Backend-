@@ -1,4 +1,5 @@
 import Auth from "../schemas/auth.schemas.js";
+import bcrypt from "bcryptjs"
 
 export const register = async (req , res) => {
  try{
@@ -13,6 +14,8 @@ export const register = async (req , res) => {
      const isUserExists = await Auth.findOne({ email });
    //   console.log("USER_DB", isUserExists)
 
+   // password hash:-
+   const hashPassword = await bcrypt.hash(password,10);
 
      if(isUserExists){
         return res
@@ -20,7 +23,7 @@ export const register = async (req , res) => {
         .json({message:"user already exists"})
      }
 
-    const newUser = new Auth({name , email , password });
+    const newUser = new Auth({name , email , password: hashPassword});
    //  console.log("DB", newUser);
     await newUser.save()
     res
@@ -28,6 +31,41 @@ export const register = async (req , res) => {
     .json({message:"user register succesfully"})
     
  } catch(error){
+    res .status(500).json({message:"Server Down"})
+ }
+}
+
+export const login = async (req , res) => {
+      try{
+         const { email , password } = req.body;
+         if(!email || !password){
+            return res
+            .status(400)
+            .json({message:"email and password is required"})
+         }
+
+         const isUserExists = await Auth.findOne({email});
+
+         if(!isUserExists){
+            return res
+            .status(400)
+            .json({message:"user not exists"})
+         }
+         // password hash :-
+         const isMatch = await bcrypt.compare(password, isUserExists.password);
+
+         if(!isMatch){
+            return res
+            .status(400)
+            .json({message:"incorrect password"}) 
+         }
+
+          res
+         .status(200)
+         .json({message:"logged In Succesfully"})
+
+         
+      } catch(error){
     res .status(500).json({message:"Server Down"})
  }
 }
