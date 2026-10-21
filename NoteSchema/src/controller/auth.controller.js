@@ -1,5 +1,4 @@
 import Auth from "../schema/auth.schema.js";
-import jwt from "jsonwebtoken"
 
 export const notes = async (req, res) => {
   try {
@@ -11,17 +10,30 @@ export const notes = async (req, res) => {
     const newUser = new Auth({ title, addnotes });
     // console.log(newUser);
     await newUser.save();
-  
-    const token = jwt.sign({ id: newUser._id},process.env.JWT_SECRET,{expiresIn: "2h"})
-
     res
     .status(201)
-    .cookie("token",token, {
-      httpOnly: true,
-      expires:new Date(Date.now() + 3600000),
-    })
-    .json({ message: "Notes added succesfully",token});
+    .json({ message: "Notes added succesfully"});
   } catch (error) {
     res.status(500).json({ message: error });
   }
 };
+
+export const getNotes = async (req , res) =>{
+  try{
+     const notes = await Auth.find()  
+     if (notes.length===0){
+       return res
+       .status(400)
+       .json({message:"Empty Notes"})
+     }
+    console.log(notes)
+    res
+    .status(200)
+    .json({message : "NOTES",notes})
+  } catch(error){
+       res
+       .status(500)
+       .json({message: error})
+  }
+}
+

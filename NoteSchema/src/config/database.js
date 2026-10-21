@@ -10,7 +10,7 @@ const notesDB = async() =>{
         const connection = await mongoose.connect(`${process.env.MONGODB_URL}${process.env.DATABASE_NAME}`);
         console.log(`MongoDB connected`)
     } catch (error){
-        console.error(`error`)
+        console.error(`error`,error)
     }
 };
 
